@@ -52,7 +52,7 @@ To run this project on your local machine, follow these steps:
 
 1.  **Prerequisites:**
     * Node.js and npm
-    * The [LinkNest Backend API](https://github.com/your-username/linknest-api) must be running locally on `http://localhost:8080`.
+    * The [LinkNest Backend API](https://github.com/yajneshx94/linknest-api) must be running locally on `http://localhost:8080`.
 
 2.  **Clone the repository:**
     ```bash
