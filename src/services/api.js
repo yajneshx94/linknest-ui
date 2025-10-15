@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create a new axios instance
 const api = axios.create({
-    baseURL: 'http://localhost:8080/api'
+    baseURL: 'https://linknest-api-d2ym.onrender.com'
 });
 
 // Use an interceptor to add the token to every request

@@ -13,7 +13,7 @@ function PublicProfile() {
         const fetchPublicLinks = async () => {
             try {
                 // Use a standard axios call, NOT the api helper, because this is a public request
-                const response = await axios.get(`http://localhost:8080/api/links/public/${username}`);
+                const response = await axios.get(`https://linknest-api-d2ym.onrender.com/api/links/public/${username}`);
                 setLinks(response.data);
             } catch (err) {
                 setError(`Could not find a profile for user: ${username}`);
