@@ -1,19 +1,31 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../services/api'; // Add this import
 import { Box, TextField, Button, Typography } from '@mui/material';
 
 function Register() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setMessage('');
+
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/register', { username, password });
+            // Changed from axios.post to api.post and removed hardcoded URL
+            const response = await api.post('/api/auth/register', { username, password });
             setMessage(response.data);
+
+            // Redirect to login after successful registration
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1500);
         } catch (error) {
-            setMessage(error.response.data);
+            setMessage(error.response?.data || 'Registration failed. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -48,11 +60,12 @@ function Register() {
                 type="submit"
                 fullWidth
                 variant="contained"
+                disabled={loading}
                 sx={{ mt: 3, mb: 2 }}
             >
-                Register
+                {loading ? 'Registering...' : 'Register'}
             </Button>
-            {message && <Typography color="text.secondary">{message}</Typography>}
+            {message && <Typography color={message.includes('successfully') ? 'success.main' : 'error'}>{message}</Typography>}
         </Box>
     );
 }
