@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../services/api';
-import { jwtDecode } from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode'; // Keep this import
 import { Box, TextField, Button, Typography, List, ListItem, ListItemText, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -11,21 +11,25 @@ function Dashboard() {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
+    const [username, setUsername] = useState(''); // <-- Add state for username
 
     useEffect(() => {
         fetchLinks();
-        checkAdminStatus();
+        getUserInfo(); // <-- Change this function name for clarity
     }, []);
 
-    const checkAdminStatus = () => {
+    // Renamed function and added username extraction
+    const getUserInfo = () => {
         try {
             const token = localStorage.getItem('jwtToken');
             if (token) {
                 const decoded = jwtDecode(token);
                 setIsAdmin(decoded.isAdmin || decoded.admin || false);
+                setUsername(decoded.sub || 'User'); // <-- Get username from 'sub' claim, fallback to 'User'
             }
         } catch (error) {
-            console.error('Error checking admin status:', error);
+            console.error('Error decoding token:', error);
+            setUsername('User'); // Fallback in case of error
         }
     };
 
@@ -39,7 +43,8 @@ function Dashboard() {
         }
     };
 
-    const handleSubmit = async (e) => {
+    // ... (keep handleSubmit, handleDelete, handleLogout methods as they are) ...
+     const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (!url || !url.startsWith('http')) {
@@ -80,10 +85,14 @@ function Dashboard() {
         window.location.href = '/login';
     };
 
+
     return (
         <Box sx={{ mt: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                <Typography component="h1" variant="h4">Your Dashboard</Typography>
+                {/* Updated Typography component */}
+                <Typography component="h1" variant="h4">
+                    {username ? `${username}'s Dashboard` : 'Your Dashboard'}
+                </Typography>
                 <Box sx={{ display: 'flex', gap: 2 }}>
                     {isAdmin && (
                         <Button
@@ -98,6 +107,7 @@ function Dashboard() {
                 </Box>
             </Box>
 
+            {/* ... (keep the rest of the return statement as it is) ... */}
             <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>
                 <TextField
                     margin="normal"
