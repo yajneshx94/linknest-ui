@@ -1,34 +1,18 @@
 import React from 'react';
-import { Box, Typography, Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Box, Typography } from '@mui/material';
 
 function Home() {
-    const navigate = useNavigate();
-
     return (
-        <Box sx={{ textAlign: 'center', mt: 8 }}>
-            <Typography variant="h2" gutterBottom>
-                Welcome to LinkNest
+        <Box sx={{ mt: 4 }}>
+            <Typography variant="h5" component="h2" gutterBottom>
+                LinkNest - Your Personal Launchpad
             </Typography>
-            <Typography variant="h6" color="text.secondary" sx={{ mb: 4 }}>
-                Manage all your important links in one place
+            <Typography variant="body1" paragraph>
+                LinkNest is your personal hub for all your important links. Create a single, easy-to-share public page that directs your audience to your social media, portfolio, online store, or any other content you want to share.
             </Typography>
-            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center' }}>
-                <Button
-                    variant="contained"
-                    size="large"
-                    onClick={() => navigate('/login')}
-                >
-                    Login
-                </Button>
-                <Button
-                    variant="outlined"
-                    size="large"
-                    onClick={() => navigate('/register')}
-                >
-                    Register
-                </Button>
-            </Box>
+            <Typography variant="body1" paragraph>
+                Simply register for an account, log in to your private dashboard, and start adding your links. Your public page is created instantly and can be shared using a clean URL: <code>/your-username</code>.
+            </Typography>
         </Box>
     );
 }

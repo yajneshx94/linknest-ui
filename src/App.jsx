@@ -1,41 +1,66 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { Container } from '@mui/material';
-import Home from './pages/Home';
-import Login from './pages/Login';
+import { Routes, Route, Link } from 'react-router-dom';
 import Register from './pages/Register';
+import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
+import PublicProfile from './pages/PublicProfile';
+import Home from './pages/Home';
+
+// Import MUI components for layout and styling
+import { Container, CssBaseline, Box, Typography, Link as MuiLink } from '@mui/material';
 
 function App() {
-    return (
-        <Router>
-            <Container maxWidth="md" sx={{ mt: 4 }}>
-                <Routes>
-                    {/* Public Routes */}
-                    <Route path="/" element={<Home />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
+  return (
+    <>
+      <CssBaseline />
+      <Container maxWidth="md">
+        <Box sx={{ my: 4 }}>
+          <Typography variant="h4" component="h1" gutterBottom>
+            LinkNest
+          </Typography>
+          <nav>
+            <MuiLink component={Link} to="/" sx={{ mr: 2 }}>
+              Home
+            </MuiLink>
+            <MuiLink component={Link} to="/register" sx={{ mr: 2 }}>
+              Register
+            </MuiLink>
+            <MuiLink component={Link} to="/login" sx={{ mr: 2 }}>
+              Login
+            </MuiLink>
+            <MuiLink component={Link} to="/dashboard">
+              Dashboard
+            </MuiLink>
+          </nav>
+          <hr style={{ margin: '16px 0' }}/>
 
-                    {/* Protected User Routes */}
-                    <Route element={<ProtectedRoute />}>
-                        <Route path="/dashboard" element={<Dashboard />} />
-                    </Route>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
 
-                    {/* Protected Admin Routes */}
-                    <Route element={<AdminRoute />}>
-                        <Route path="/admin" element={<AdminDashboard />} />
-                    </Route>
+            {/* Home page */}
+            <Route path="/" element={<Home />} />
 
-                    {/* Redirect unknown routes to home */}
-                    <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-            </Container>
-        </Router>
-    );
+            {/* Protected User routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+            </Route>
+
+            {/* Protected Admin routes */}
+            <Route element={<AdminRoute />}>
+              <Route path="/admin" element={<AdminDashboard />} />
+            </Route>
+
+            {/* Dynamic public profile route last */}
+            <Route path="/:username" element={<PublicProfile />} />
+          </Routes>
+        </Box>
+      </Container>
+    </>
+  );
 }
 
 export default App;
-
