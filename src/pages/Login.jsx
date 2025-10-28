@@ -1,21 +1,28 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../services/api'; // ADD THIS IMPORT
 import { Box, TextField, Button, Typography } from '@mui/material';
 
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
+    const [loading, setLoading] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
+        setMessage('');
+
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/login', { username, password });
+            // CHANGE THIS LINE - Remove hardcoded localhost
+            const response = await api.post('/api/auth/login', { username, password });
             const token = response.data.token;
             localStorage.setItem('jwtToken', token);
-            window.location.href = '/dashboard'; // Redirect to dashboard on successful login
+            window.location.href = '/dashboard';
         } catch (error) {
             setMessage('Login failed. Please check your credentials.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -50,9 +57,10 @@ function Login() {
                 type="submit"
                 fullWidth
                 variant="contained"
+                disabled={loading}
                 sx={{ mt: 3, mb: 2 }}
             >
-                Login
+                {loading ? 'Logging in...' : 'Login'}
             </Button>
             {message && <Typography color="error">{message}</Typography>}
         </Box>
