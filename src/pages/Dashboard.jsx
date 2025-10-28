@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import api from '../services/api'; // ADD THIS IMPORT
+import api from '../services/api';
+import { jwtDecode } from 'jwt-decode';
 import { Box, TextField, Button, Typography, List, ListItem, ListItemText, IconButton } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
@@ -9,15 +10,27 @@ function Dashboard() {
     const [links, setLinks] = useState([]);
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(false);
 
-    // Fetch links when component loads
     useEffect(() => {
         fetchLinks();
+        checkAdminStatus();
     }, []);
+
+    const checkAdminStatus = () => {
+        try {
+            const token = localStorage.getItem('jwtToken');
+            if (token) {
+                const decoded = jwtDecode(token);
+                setIsAdmin(decoded.isAdmin || decoded.admin || false);
+            }
+        } catch (error) {
+            console.error('Error checking admin status:', error);
+        }
+    };
 
     const fetchLinks = async () => {
         try {
-            // CHANGED: Remove localhost, use api service
             const response = await api.get('/api/links');
             setLinks(response.data);
         } catch (error) {
@@ -29,7 +42,6 @@ function Dashboard() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validate URL
         if (!url || !url.startsWith('http')) {
             setMessage('Please enter a valid URL starting with http:// or https://');
             return;
@@ -39,12 +51,11 @@ function Dashboard() {
         setMessage('');
 
         try {
-            // CHANGED: Remove localhost, use api service
             await api.post('/api/links', { title, url });
             setMessage('Link added successfully!');
             setTitle('');
             setUrl('');
-            fetchLinks(); // Refresh the list
+            fetchLinks();
         } catch (error) {
             setMessage('Failed to add link.');
             console.error('Error adding link:', error);
@@ -55,10 +66,9 @@ function Dashboard() {
 
     const handleDelete = async (id) => {
         try {
-            // CHANGED: Remove localhost, use api service
             await api.delete(`/api/links/${id}`);
             setMessage('Link deleted successfully!');
-            fetchLinks(); // Refresh the list
+            fetchLinks();
         } catch (error) {
             setMessage('Failed to delete link.');
             console.error('Error deleting link:', error);
@@ -74,7 +84,18 @@ function Dashboard() {
         <Box sx={{ mt: 3 }}>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography component="h1" variant="h4">Your Dashboard</Typography>
-                <Button variant="outlined" onClick={handleLogout}>LOGOUT</Button>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                    {isAdmin && (
+                        <Button
+                            variant="contained"
+                            color="error"
+                            onClick={() => window.location.href = '/admin'}
+                        >
+                            ADMIN PANEL
+                        </Button>
+                    )}
+                    <Button variant="outlined" onClick={handleLogout}>LOGOUT</Button>
+                </Box>
             </Box>
 
             <Box component="form" onSubmit={handleSubmit} sx={{ mb: 4 }}>
@@ -85,7 +106,7 @@ function Dashboard() {
                     id="title"
                     label="Title"
                     name="title"
-                    placeholder="linkedin"
+                    placeholder="LinkedIn"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                 />
@@ -96,7 +117,7 @@ function Dashboard() {
                     id="url"
                     label="URL"
                     name="url"
-                    placeholder="www.linkedin.com/in/yajneshk04"
+                    placeholder="https://linkedin.com/in/yajneshk04"
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                 />
