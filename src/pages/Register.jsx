@@ -1,73 +1,60 @@
-import React, { useState } from 'react';
-import api from '../services/api'; // Add this import
-import { Box, TextField, Button, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../services/api';
 
 function Register() {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [message, setMessage] = useState('');
-    const [loading, setLoading] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [message, setMessage] = useState('');
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        setMessage('');
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setMessage('');
+    try {
+      await api.post('/api/auth/register', { username, password });
+      setSuccess(true);
+      setMessage('Account created! Redirecting...');
+      setTimeout(() => { window.location.href = '/login'; }, 1500);
+    } catch (err) {
+      setMessage(err.response?.data || 'Registration failed. Try a different username.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        try {
-            // Changed from axios.post to api.post and removed hardcoded URL
-            const response = await api.post('/api/auth/register', { username, password });
-            setMessage(response.data);
-
-            // Redirect to login after successful registration
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 1500);
-        } catch (error) {
-            setMessage(error.response?.data || 'Registration failed. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    return (
-        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Typography component="h1" variant="h5">Register</Typography>
-            <TextField
-                margin="normal"
-                required
-                fullWidth
-                id="username"
-                label="Username"
-                name="username"
-                autoComplete="username"
-                autoFocus
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-            />
-            <TextField
-                margin="normal"
-                required
-                fullWidth
-                name="password"
-                label="Password"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                disabled={loading}
-                sx={{ mt: 3, mb: 2 }}
-            >
-                {loading ? 'Registering...' : 'Register'}
-            </Button>
-            {message && <Typography color={message.includes('successfully') ? 'success.main' : 'error'}>{message}</Typography>}
-        </Box>
-    );
+  return (
+    <div className="page-center">
+      <div className="auth-card">
+        <div className="auth-logo">LinkNest</div>
+        <div className="auth-subtitle">Create your free page</div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Username</label>
+            <input className="form-input" type="text" placeholder="yajnesh" required
+              value={username} onChange={e => setUsername(e.target.value)} />
+            <div style={{fontSize:'0.78rem', color:'var(--text-muted)', marginTop:'0.3rem'}}>
+              Your public page will be at /{username || 'username'}
+            </div>
+          </div>
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input className="form-input" type="password" placeholder="••••••••" required
+              value={password} onChange={e => setPassword(e.target.value)} />
+          </div>
+          {message && <div className={`alert ${success ? 'alert-success' : 'alert-error'}`}>{message}</div>}
+          <button type="submit" className="btn btn-primary btn-full" disabled={loading} style={{marginTop:'0.5rem'}}>
+            {loading ? 'Creating account...' : 'Create account'}
+          </button>
+        </form>
+        <div className="auth-footer">
+          Already have an account? <Link to="/login">Sign in</Link>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default Register;

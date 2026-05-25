@@ -1,20 +1,18 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Link } from 'react-router-dom';
 
 function Home() {
-    return (
-        <Box sx={{ mt: 4 }}>
-            <Typography variant="h5" component="h2" gutterBottom>
-                LinkNest - Your Personal Launchpad
-            </Typography>
-            <Typography variant="body1" paragraph>
-                LinkNest is your personal hub for all your important links. Create a single, easy-to-share public page that directs your audience to your social media, portfolio, online store, or any other content you want to share.
-            </Typography>
-            <Typography variant="body1" paragraph>
-                Simply register for an account, log in to your private dashboard, and start adding your links. Your public page is created instantly and can be shared using a clean URL: <code>/your-username</code>.
-            </Typography>
-        </Box>
-    );
+  return (
+    <div className="home-hero">
+      <h1 className="home-title">Your links,<br />one place.</h1>
+      <p className="home-sub">
+        Create a clean public page with all your important links — portfolio, socials, projects — and share it with a single URL.
+      </p>
+      <div className="home-actions">
+        <Link to="/register"><button className="btn btn-primary">Create your page</button></Link>
+        <Link to="/login"><button className="btn btn-outline">Sign in</button></Link>
+      </div>
+    </div>
+  );
 }
 
 export default Home;

@@ -1,58 +1,74 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom'; // Import the useParams hook
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import axios from 'axios';
-import { Box, Typography, List, ListItem, ListItemText, CircularProgress, Link as MuiLink } from '@mui/material';
 
 function PublicProfile() {
-    const [links, setLinks] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState('');
-    const { username } = useParams(); // This hook gets the 'username' from the URL
+  const { username } = useParams();
+  const [links, setLinks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-    useEffect(() => {
-        const fetchPublicLinks = async () => {
-            try {
-                // Use a standard axios call, NOT the api helper, because this is a public request
-                const response = await axios.get(`https://linknest-api-d2ym.onrender.com/api/links/public/${username}`);
-                setLinks(response.data);
-            } catch (err) {
-                setError(`Could not find a profile for user: ${username}`);
-            } finally {
-                setLoading(false);
-            }
-        };
+  useEffect(() => {
+    if (!username) return;
+    axios.get(`http://localhost:8080/api/links/public/${username}`)
+      .then(res => setLinks(res.data))
+      .catch(() => setError(`No public profile found for @${username}`))
+      .finally(() => setLoading(false));
+  }, [username]);
 
-        if (username) {
-            fetchPublicLinks();
-        }
-    }, [username]); // This effect runs whenever the username in the URL changes
+  if (loading) return (
+    <div className="page-loading">
+      <div className="spinner"></div>
+    </div>
+  );
 
-    if (loading) {
-        return <CircularProgress />; // Show a loading spinner while fetching
-    }
+  if (error) return (
+    <div className="profile-page">
+      <div className="profile-card" style={{textAlign:'center', paddingTop:'4rem'}}>
+        <div style={{fontSize:'2rem', marginBottom:'1rem'}}>🔍</div>
+        <p style={{color:'var(--text-secondary)'}}>{error}</p>
+      </div>
+    </div>
+  );
 
-    if (error) {
-        return <Typography color="error">{error}</Typography>;
-    }
+  return (
+    <div className="profile-page">
+      <div className="profile-card">
+        <div className="profile-avatar">
+          {username.charAt(0).toUpperCase()}
+        </div>
+        <h1 className="profile-username">@{username}</h1>
+        <p className="profile-bio">LinkNest profile</p>
 
-    return (
-        <Box sx={{ mt: 4 }}>
-            <Typography variant="h4" component="h1" gutterBottom>
-                @{username}
-            </Typography>
-            {links.length > 0 ? (
-                <List>
-                    {links.map(link => (
-                        <ListItem key={link.id} button component="a" href={link.url} target="_blank" rel="noopener noreferrer">
-                            <ListItemText primary={link.title} />
-                        </ListItem>
-                    ))}
-                </List>
-            ) : (
-                <Typography>This user has no links yet.</Typography>
-            )}
-        </Box>
-    );
+        {links.length === 0 ? (
+          <p style={{textAlign:'center', color:'var(--text-muted)', fontSize:'0.9rem'}}>
+            This profile has no links yet.
+          </p>
+        ) : (
+          <div>
+            {links.map(link => (
+              <a
+                key={link.id}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="public-link"
+                onClick={() => axios.post(`http://localhost:8080/api/links/${link.id}/click`).catch(() => {})}
+              >
+                {link.title}
+              </a>
+            ))}
+          </div>
+        )}
+
+        <div style={{textAlign:'center', marginTop:'2.5rem'}}>
+          <a href="/" style={{fontSize:'0.78rem', color:'var(--text-muted)'}}>
+            Made with LinkNest
+          </a>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default PublicProfile;
