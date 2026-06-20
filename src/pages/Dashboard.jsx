@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { jwtDecode } from 'jwt-decode';
 
@@ -28,8 +27,14 @@ function Dashboard() {
   const [editUrl, setEditUrl] = useState('');
   const [editLoading, setEditLoading] = useState(false);
 
+  // Bio state
+  const [bio, setBio] = useState('');
+  const [bioLoading, setBioLoading] = useState(false);
+  const [bioSaved, setBioSaved] = useState(false);
+
   useEffect(() => {
     fetchLinks();
+    fetchProfile();
     try {
       const token = localStorage.getItem('jwtToken');
       if (token) {
@@ -50,6 +55,23 @@ function Dashboard() {
       const res = await api.get('/api/links');
       setLinks(res.data);
     } catch { showMsg('Could not load links.', 'error'); }
+  };
+
+  const fetchProfile = async () => {
+    try {
+      const res = await api.get('/api/profile');
+      setBio(res.data.bio || '');
+    } catch {}
+  };
+
+  const handleSaveBio = async () => {
+    setBioLoading(true);
+    try {
+      await api.put('/api/profile', { bio });
+      setBioSaved(true);
+      setTimeout(() => setBioSaved(false), 2500);
+    } catch { showMsg('Failed to save bio.', 'error'); }
+    finally { setBioLoading(false); }
   };
 
   const handleAdd = async (e) => {
@@ -119,6 +141,36 @@ function Dashboard() {
 
         {message && <div className={`alert alert-${msgType}`}>{message}</div>}
 
+        {/* Bio section */}
+        <div className="add-link-card" style={{marginBottom:'1.5rem'}}>
+          <div className="section-title">About you</div>
+          <p style={{fontSize:'0.8rem', color:'var(--text-muted)', marginBottom:'0.75rem'}}>
+            This shows on your public profile page. Keep it under 160 characters.
+          </p>
+          <textarea
+            className="form-input"
+            placeholder="BE CSE student, building cool stuff. Find my projects and socials here."
+            maxLength={160}
+            rows={3}
+            value={bio}
+            onChange={e => setBio(e.target.value)}
+            style={{resize:'none', lineHeight:'1.6', marginBottom:'0.75rem'}}
+          />
+          <div style={{display:'flex', alignItems:'center', gap:'1rem'}}>
+            <button
+              className="btn btn-primary btn-sm"
+              onClick={handleSaveBio}
+              disabled={bioLoading}
+            >
+              {bioLoading ? 'Saving...' : bioSaved ? '✓ Saved' : 'Save bio'}
+            </button>
+            <span style={{fontSize:'0.78rem', color:'var(--text-muted)'}}>
+              {bio.length}/160
+            </span>
+          </div>
+        </div>
+
+        {/* Add link section */}
         <div className="add-link-card">
           <div className="section-title">Add a link</div>
           <form onSubmit={handleAdd}>
@@ -130,7 +182,7 @@ function Dashboard() {
               </div>
               <div>
                 <label className="form-label">URL</label>
-                <input className="form-input" placeholder="https://github.com/yajnesh" value={url}
+                <input className="form-input" placeholder="https://github.com/johndoe" value={url}
                   onChange={e => setUrl(e.target.value)} required />
               </div>
               <div style={{paddingBottom:'0'}}>
@@ -167,10 +219,10 @@ function Dashboard() {
                 </div>
                 <div className="link-actions">
                   <button className="icon-btn" onClick={() => openEdit(link)} title="Edit">
-                    ✏️
+                    <i className="fas fa-edit" style={{color:'rgb(12, 44, 6)'}}></i>
                   </button>
                   <button className="icon-btn danger" onClick={() => handleDelete(link.id)} title="Delete">
-                    🗑
+                    <i className="fa-solid fa-trash-can" style={{color:'rgb(12, 44, 6)'}}></i>
                   </button>
                 </div>
               </div>

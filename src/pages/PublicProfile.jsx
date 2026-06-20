@@ -5,15 +5,29 @@ import axios from 'axios';
 function PublicProfile() {
   const { username } = useParams();
   const [links, setLinks] = useState([]);
+  const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (!username) return;
-    axios.get(`http://localhost:8080/api/links/public/${username}`)
-      .then(res => setLinks(res.data))
-      .catch(() => setError(`No public profile found for @${username}`))
-      .finally(() => setLoading(false));
+
+    const fetchAll = async () => {
+      try {
+        const [linksRes, profileRes] = await Promise.all([
+          axios.get(`http://localhost:8080/api/links/public/${username}`),
+          axios.get(`http://localhost:8080/api/profile/public/${username}`)
+        ]);
+        setLinks(linksRes.data);
+        setProfile(profileRes.data);
+      } catch {
+        setError(`No public profile found for @${username}`);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAll();
   }, [username]);
 
   if (loading) return (
@@ -38,7 +52,10 @@ function PublicProfile() {
           {username.charAt(0).toUpperCase()}
         </div>
         <h1 className="profile-username">@{username}</h1>
-        <p className="profile-bio">LinkNest profile</p>
+
+        {profile?.bio && (
+          <p className="profile-bio">{profile.bio}</p>
+        )}
 
         {links.length === 0 ? (
           <p style={{textAlign:'center', color:'var(--text-muted)', fontSize:'0.9rem'}}>

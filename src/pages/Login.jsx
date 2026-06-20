@@ -24,14 +24,21 @@ function Login() {
   };
 
   return (
-    <div className="page-center">
-      <div className="auth-card">
+    <div style={{
+      minHeight: 'calc(100vh - 56px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2rem 1rem',
+      background: 'var(--bg-base)'
+    }}>
+      <div className="auth-card" style={{width: '100%', maxWidth: '420px'}}>
         <div className="auth-logo">LinkNest</div>
         <div className="auth-subtitle">Sign in to your account</div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">Username</label>
-            <input className="form-input" type="text" placeholder="yajnesh" required
+            <input className="form-input" type="text" placeholder="your username" required
               value={username} onChange={e => setUsername(e.target.value)} />
           </div>
           <div className="form-group">

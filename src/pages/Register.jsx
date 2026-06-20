@@ -26,14 +26,21 @@ function Register() {
   };
 
   return (
-    <div className="page-center">
-      <div className="auth-card">
+    <div style={{
+      minHeight: 'calc(100vh - 56px)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2rem 1rem',
+      background: 'var(--bg-base)'
+    }}>
+      <div className="auth-card" style={{width: '100%', maxWidth: '420px'}}>
         <div className="auth-logo">LinkNest</div>
         <div className="auth-subtitle">Create your free page</div>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label className="form-label">Username</label>
-            <input className="form-input" type="text" placeholder="yajnesh" required
+            <input className="form-input" type="text" placeholder="johndoe" required
               value={username} onChange={e => setUsername(e.target.value)} />
             <div style={{fontSize:'0.78rem', color:'var(--text-muted)', marginTop:'0.3rem'}}>
               Your public page will be at /{username || 'username'}
