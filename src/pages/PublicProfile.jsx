@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 
+const API = 'https://linknest-api-x9to.onrender.com';
+
 function PublicProfile() {
   const { username } = useParams();
   const [links, setLinks] = useState([]);
@@ -14,12 +16,12 @@ function PublicProfile() {
 
     const fetchAll = async () => {
       try {
-        const [linksRes, profileRes] = await Promise.all([
-          axios.get(`http://localhost:8080/api/links/public/${username}`),
-          axios.get(`http://localhost:8080/api/profile/public/${username}`)
-        ]);
+        const linksRes = await axios.get(`${API}/api/links/public/${username}`);
         setLinks(linksRes.data);
-        setProfile(profileRes.data);
+        try {
+          const profileRes = await axios.get(`${API}/api/profile/public/${username}`);
+          setProfile(profileRes.data);
+        } catch {}
       } catch {
         setError(`No public profile found for @${username}`);
       } finally {
@@ -31,23 +33,30 @@ function PublicProfile() {
   }, [username]);
 
   if (loading) return (
-    <div className="page-loading">
+    <div style={{display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh'}}>
       <div className="spinner"></div>
     </div>
   );
 
   if (error) return (
-    <div className="profile-page">
-      <div className="profile-card" style={{textAlign:'center', paddingTop:'4rem'}}>
+    <div style={{display:'flex', alignItems:'center', justifyContent:'center', minHeight:'100vh'}}>
+      <div style={{textAlign:'center'}}>
         <div style={{fontSize:'2rem', marginBottom:'1rem'}}>🔍</div>
-        <p style={{color:'var(--text-secondary)'}}>{error}</p>
+        <p style={{color:'var(--text-muted)'}}>{error}</p>
       </div>
     </div>
   );
 
   return (
-    <div className="profile-page">
-      <div className="profile-card">
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '2rem 1rem',
+      background: 'var(--bg-base)'
+    }}>
+      <div className="profile-card" style={{width:'100%', maxWidth:'480px'}}>
         <div className="profile-avatar">
           {username.charAt(0).toUpperCase()}
         </div>
@@ -58,11 +67,11 @@ function PublicProfile() {
         )}
 
         {links.length === 0 ? (
-          <p style={{textAlign:'center', color:'var(--text-muted)', fontSize:'0.9rem'}}>
+          <p style={{textAlign:'center', color:'var(--text-muted)', fontSize:'0.9rem', marginTop:'1.5rem'}}>
             This profile has no links yet.
           </p>
         ) : (
-          <div>
+          <div style={{marginTop:'1.5rem'}}>
             {links.map(link => (
               <a
                 key={link.id}
@@ -70,7 +79,7 @@ function PublicProfile() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="public-link"
-                onClick={() => axios.post(`http://localhost:8080/api/links/${link.id}/click`).catch(() => {})}
+                onClick={() => axios.post(`${API}/api/links/${link.id}/click`).catch(() => {})}
               >
                 {link.title}
               </a>
