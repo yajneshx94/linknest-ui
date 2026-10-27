@@ -1,72 +1,89 @@
-# LinkNest UI - A Multi-Tenant Link-in-Bio Frontend
+# LinkNest UI
 
-![React](https://img.shields.io/badge/React-18-blue) ![Vite](https://img.shields.io/badge/Vite-fast-yellow) ![MUI](https://img.shields.io/badge/MUI-v5-blue) ![Axios](https://img.shields.io/badge/Axios-API%20Calls-purple)
+The React frontend for LinkNest, a link management application where users can manage their links and profiles and share public-facing link pages.
 
-This repository contains the frontend user interface for **LinkNest**, a full-stack, multi-tenant "link-in-bio" application. This React single-page application (SPA) consumes the Java Spring Boot backend API to provide a seamless user experience.
+## Features
 
-The application features a complete authentication flow, a private dashboard for managing links, and dynamic, public-facing profile pages for sharing.
+- Registration and login screens.
+- User dashboard for adding, editing, and deleting links.
+- Profile/bio editing.
+- Public profile pages at `/:username`.
+- Protected dashboard and administrator pages in the React router.
+- Basic click tracking through the backend API.
+- Administrator dashboard with statistics, user data, and a growth chart.
 
-**Live Frontend Demo:** [Link to your deployed Vercel URL will go here]
-**Backend Repository:** [Link to your `linknest-api` GitHub repository]
+## Technology
 
----
+- React 19
+- Vite
+- JavaScript / JSX
+- React Router DOM
+- Axios
+- `jwt-decode`
+- Recharts
+- Custom CSS
 
-## Key Features & Architectural Concepts
+## How it works
 
-This frontend demonstrates several key concepts for building modern web applications:
+```text
+React page or component
+        ↓
+Axios API client
+        ↓ HTTP / REST
+LinkNest Spring Boot API
+        ↓
+JSON response
+        ↓
+React updates the interface
+```
 
-* **JWT Authentication Flow:** The application manages the full user authentication lifecycle. It provides forms for registration and login, and upon successful login, it securely stores the received **JSON Web Token (JWT)** in the browser's `localStorage`. An `axios` interceptor is used to automatically attach this token to the `Authorization` header of all subsequent requests to protected backend endpoints.
+The Axios client checks `localStorage` for `jwtToken` and, when present, adds it to the `Authorization: Bearer ...` header. The frontend route guards improve navigation, but backend authorization is still required to protect data and operations.
 
-* **Protected Routes:** The application uses `react-router-dom` to implement client-side protected routing. A custom `ProtectedRoute` component acts as a gatekeeper, checking for the presence of a JWT in `localStorage`. If the token is missing, the user is automatically redirected to the login page, preventing unauthorized access to private areas like the dashboard.
+## Requirements
 
-* **Dynamic Public Profiles:** The application utilizes dynamic routing (`/:username`) to generate unique, public-facing profile pages for each user. The `useParams` hook from `react-router-dom` is used to extract the username from the URL, fetch the corresponding public data from the API, and render the user's list of links.
+- Node.js and npm
+- LinkNest API running, or a deployed backend URL configured for the frontend
 
-* **Professional & Responsive UI:** The entire user interface is built using **MUI (Material-UI)**, a comprehensive library of pre-built React components. This ensures a clean, modern, and responsive design that works well on both desktop and mobile devices.
+## Setup and run
 
----
+1. Clone this repository and open its directory.
+2. Install dependencies:
 
-## Tech Stack
+   ```bash
+   npm install
+   ```
 
-* **Framework:** React 18
-* **Build Tool:** Vite
-* **Routing:** React Router DOM
-* **API Communication:** Axios
-* **UI Components:** MUI (Material-UI)
-* **Language:** JavaScript (JSX)
+3. Check `src/services/api.js`. The reviewed code uses `http://localhost:8080` as its API base URL. Change it to the backend URL appropriate for your environment before running or deploying.
+4. Start the development server:
 
----
+   ```bash
+   npm run dev
+   ```
 
-## Application Structure
+Vite prints the local URL in the terminal.
 
-The application is structured into several key areas:
+## Main routes
 
-* **`pages`:** Contains the main page components of the application (e.g., `Login`, `Register`, `Dashboard`, `PublicProfile`).
-* **`components`:** Contains reusable components, such as the `ProtectedRoute`.
-* **`services`:** Contains helpers and services, like the `api.js` Axios instance with its JWT interceptor.
+| Route | Purpose |
+|---|---|
+| `/` | Home page |
+| `/login` | Login |
+| `/register` | Registration |
+| `/dashboard` | Signed-in user's dashboard |
+| `/admin` | Administrator dashboard |
+| `/:username` | Public profile route |
 
----
+The public-profile route is a frontend route; whether each API call it makes is accessible without login depends on the backend's security configuration.
 
-## Setup and Run Locally
+## Authentication flow
 
-To run this project on your local machine, follow these steps:
+1. The user submits credentials to the backend login endpoint.
+2. The frontend stores the returned JWT in `localStorage`.
+3. The Axios request interceptor attaches the token when one is present.
+4. The backend independently validates tokens and enforces endpoint authorization.
 
-1.  **Prerequisites:**
-    * Node.js and npm
-    * The [LinkNest Backend API](https://github.com/yajneshx94/linknest-api) must be running locally on `http://localhost:8080`.
+## Notes
 
-2.  **Clone the repository:**
-    ```bash
-    git clone [https://github.com/your-username/linknest-ui.git](https://github.com/your-username/linknest-ui.git)
-    cd linknest-ui
-    ```
-
-3.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
-
-4.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
-    The application will be available at `http://localhost:5173`.
+- The frontend's protected-route component checks token presence in the browser; that check alone does not prove the token is valid.
+- The administrator route decodes the token for UI behaviour, but administrative permissions must be enforced by the backend.
+- Keep API URLs environment-specific for local and deployed use. Avoid committing credentials or secrets to the frontend.
